@@ -1,0 +1,17 @@
+# vim:ft=sh
+# Set the right Ruby/gemset
+rvm 1.9.2@scenario_extractor --create 
+ruby -v
+GEMSET=`rvm gemset name`
+echo "Gemset: ${GEMSET}"
+
+# Path manipulation (surprisingly hard to do right!)
+path_remove ()  { export PATH=`echo -n $PATH | awk -v RS=: -v ORS=: '$0 != "'$1'"' | sed 's/:$//'`; }
+path_prepend () { path_remove $1; export PATH="$1:$PATH"; }
+NEW_PROJECT_PATH="${PWD}/bin"
+if [ -n $OLD_PROJECT_PATH ] && [ "$OLD_PROJECT_PATH" != "$NEW_PROJECT_PATH" ]; then
+	path_remove $OLD_PROJECT_PATH
+fi
+path_prepend $NEW_PROJECT_PATH
+export OLD_PROJECT_PATH=$NEW_PROJECT_PATH
+echo "Prepended ${NEW_PROJECT_PATH} to PATH"
