@@ -1,0 +1,24 @@
+#!/usr/bin/env ruby
+
+require 'scenario_extractor'
+require 'trollop'
+
+opts = Trollop::options do
+  opt :mrn, "Medical record number (required)", :type => String
+  opt :accession_no, "Accession number (required)", :type => :int
+  opt :scenario_uuid, "UUID of scenario family (optional)", :type => String
+  opt :output, "Output file name (stdout if none)", :type => String
+  opt :config, "Config file name", :default => "config.yml"
+end
+{:mrn => "MRN", :accession_no => "accession number"}.each do |sym, name|
+  Trollop.die sym, "must assign a #{name}" unless opts[sym]
+end
+
+ScenarioExtractor.load_configuration(opts[:config])
+scenario = ScenarioExtractor::Scenario.new(opts[:mrn], opts[:accession_no])
+xml = ScenarioExtractor::Formatter.make_scenario_xml(scenario)
+if opts[:output] 
+  File.open(opts[:output], "w") { |f| f << xml }
+else
+  puts xml
+end

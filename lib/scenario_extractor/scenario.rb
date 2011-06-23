@@ -47,7 +47,7 @@ module ScenarioExtractor
       return @items if @items
       update_qpid_if_needed
       items = ScenarioExtractor.qpid.search(mrn, *search_terms)
-      items.reject! { |i| i.mid == index_item.mid }
+      items.reject! { |i| i.mid == index_item.mid || (i.type == "OPN" && i.mid =~ /PERI$/) }
       items.each { |i| add_report_methods_to_item(i) }
       @items = items
     end

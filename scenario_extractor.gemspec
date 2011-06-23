@@ -21,6 +21,7 @@ Gem::Specification.new do |s|
   s.add_dependency("activesupport")
   s.add_dependency("tiny_tds")
   s.add_dependency("uuidtools")
+  s.add_dependency("trollop")
   s.add_development_dependency("rspec", "~>2.6")
   s.add_development_dependency("wirble")
   s.add_development_dependency("wirb")
