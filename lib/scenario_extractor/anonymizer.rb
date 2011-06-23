@@ -9,6 +9,7 @@ module ScenarioExtractor
     SEPARATOR= '[- \/,]+'
     NOT_SEPARATOR= '[^- \/,]'
     MAYBE_YEAR = "(?:#{SEPARATOR}#{YEAR})?"
+    TIME_RE = /[012]?\d:[0-5]\d(?:\:[0-5]\d)?\s?(?:(?:a|p)m)?/i
 
     DAY_WORD_MONTH_YEAR_RE = /#{NUM_DAY}#{SEPARATOR}#{WORD_MONTH}#{MAYBE_YEAR}/
     WORD_MONTH_DAY_YEAR_RE = /#{WORD_MONTH}#{SEPARATOR}#{NUM_DAY}#{MAYBE_YEAR}/
@@ -18,9 +19,18 @@ module ScenarioExtractor
     LONG_NUMBER_RE = /[-\#\d]{4,}/
     A_ROUND_THOUSAND_RE = /^\d000$/
 
+    DOCTOR_FIELDS = ['Ordering Provider', 'Final Diagnosis by', 'Initial Evaluation by', 'SURGEON', 'Cytotechnologist',
+          'ASSISTANT SURGEON', 'ASSISTANT' 'Addendum \#\d by', 'Reviewed by', 'Providers', 'Technologist'].join('|')
+    DOCTOR_FIELDS_RE = /^(\s*)(#{DOCTOR_FIELDS})(.*)$/i
+    NAME_PART = '\b[A-Z][-A-Za-z\'\.]*'
+    LAST_NAME = '\b([A-Z][-A-Za-z\']+)\b'
+    DOCTOR_NAMES_MD_RE = /(?:#{NAME_PART}#{SEPARATOR})*#{NAME_PART}#{SEPARATOR}(?=MD|M\.D\.)/
+    DR_DOCTOR_NAMES_RE = /\b(?<=Dr)\.?\s+(?:#{NAME_PART}#{SEPARATOR})*#{LAST_NAME}\b/
+
     class << self
       def anonymize(name, text)
         text = redact_name(name, text)
+        text = redact_doctor_names(text)
         text = redact_dates(text)
         redact_numbers(text)
       end
@@ -32,8 +42,15 @@ module ScenarioExtractor
       end
 
       def redact_dates(text)
-        regexes = [DAY_WORD_MONTH_YEAR_RE, WORD_MONTH_DAY_YEAR_RE, NUM_MONTH_DAY_YEAR_RE, DAY_NUM_MONTH_YEAR_RE]
-        regexes.inject(text) { |fixed_text, re| fixed_text.gsub(re) { |n| n.gsub(/[[:alnum:]]/, '#') } }
+        regexes = [DAY_WORD_MONTH_YEAR_RE, WORD_MONTH_DAY_YEAR_RE, NUM_MONTH_DAY_YEAR_RE, DAY_NUM_MONTH_YEAR_RE, TIME_RE]
+        regexes.inject(text) { |fixed_text, re| fixed_text.gsub(re) { |n| n.gsub(/[[:alnum:]]/, '-') } }
+      end
+
+      def redact_doctor_names(text)
+        text.gsub!(/(?<=\n)\s*RADIOLOGISTS:.*$/m, '')
+        text.gsub!(DOCTOR_FIELDS_RE) { |n| $1 + $2 + $3.gsub(/[[:alnum:]]/, '*') }
+        regexes = [DOCTOR_NAMES_MD_RE, DR_DOCTOR_NAMES_RE]
+        regexes.inject(text) { |fixed_text, re| fixed_text.gsub(re) { |n| n.gsub(/[[:alnum:]]/, '*') } }
       end
 
       def redact_numbers(text)
