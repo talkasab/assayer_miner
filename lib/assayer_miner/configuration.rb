@@ -2,7 +2,7 @@ require 'qpid'
 require 'yaml'
 require 'tiny_tds'
 
-module ScenarioExtractor
+module AssayerMiner
   class << self
 
     def load_configuration(filename='config.yml')

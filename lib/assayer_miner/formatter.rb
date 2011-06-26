@@ -1,7 +1,7 @@
 require 'builder'
 require 'uuidtools'
 
-module ScenarioExtractor
+module AssayerMiner
   module Formatter
     class << self
       def make_scenario_xml(scenario, opts = {})

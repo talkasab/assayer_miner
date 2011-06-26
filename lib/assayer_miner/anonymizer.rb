@@ -1,4 +1,4 @@
-module ScenarioExtractor
+module AssayerMiner
   module Anonymizer
     NUM_DAY = '[0123]?\d'
     NUM_MONTH = '[01]?\d'

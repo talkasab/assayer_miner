@@ -1,6 +1,6 @@
 # vim:ft=sh
 # Set the right Ruby/gemset
-rvm 1.9.2@scenario_extractor --create 
+rvm 1.9.2@assayer_miner --create 
 ruby -v
 GEMSET=`rvm gemset name`
 echo "Gemset: ${GEMSET}"

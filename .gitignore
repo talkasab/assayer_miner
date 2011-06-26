@@ -2,5 +2,5 @@
 .bundle
 Gemfile.lock
 pkg/*
-config.yml
+tmp/*
 .*.swp

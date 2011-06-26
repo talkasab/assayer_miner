@@ -1,0 +1,11 @@
+:ris_db:
+  :username: ris_username
+  :password: ris_pw
+  :host: ris_mirror_host.example.org
+:qpid:
+  :host: qpid.example.org
+  :path: /tomcat/qpid
+  :user: abc4
+  :http_user: mun
+  :http_password: mpw
+  :query_interval: 2.5

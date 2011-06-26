@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'scenario_extractor'
+require 'assayer_miner'
 require 'trollop'
 
 opts = Trollop::options do
@@ -14,9 +14,9 @@ end
   Trollop.die sym, "must assign a #{name}" unless opts[sym]
 end
 
-ScenarioExtractor.load_configuration(opts[:config])
-scenario = ScenarioExtractor::Scenario.new(opts[:mrn], opts[:accession_no])
-xml = ScenarioExtractor::Formatter.make_scenario_xml(scenario)
+AssayerMiner.load_configuration(opts[:config])
+scenario = AssayerMiner::Scenario.new(opts[:mrn], opts[:accession_no])
+xml = AssayerMiner::Formatter.make_scenario_xml(scenario)
 if opts[:output] 
   File.open(opts[:output], "w") { |f| f << xml }
 else

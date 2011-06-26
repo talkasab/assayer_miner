@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module ScenarioExtractor
+module AssayerMiner
   describe "finding the index item" do
     it "gets index item from QPID"
     it "raises an error when there is no relevant item"

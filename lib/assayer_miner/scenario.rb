@@ -1,4 +1,4 @@
-module ScenarioExtractor
+module AssayerMiner
   class IndexItemNotFound < RuntimeError; end
   class InvalidMedicalRecordNumber < RuntimeError; end
   class InvalidAccessionNumber < RuntimeError; end
@@ -23,7 +23,7 @@ module ScenarioExtractor
     def ris_data
       return @ris_data if @ris_data
       sql = "SELECT * FROM [Radmine] WHERE [ACC]=#{accession_no} AND [MRN]='#{mrn}'"
-      result = ScenarioExtractor.ris_db_client.execute(sql)
+      result = AssayerMiner.ris_db_client.execute(sql)
       data = result.each(:as => :hash, :symbolize_keys => true).first
       unless data.present?
         raise IndexItemNotFound, "No radiology exam found for MRN #{mrn} accession #{accession_no} in RIS" 
@@ -33,7 +33,7 @@ module ScenarioExtractor
 
     def index_item
       return @index_item if @index_item
-      search_items = ScenarioExtractor.qpid.search(mrn, Qpid.type("RAD"), accession_no)
+      search_items = AssayerMiner.qpid.search(mrn, Qpid.type("RAD"), accession_no)
       if search_items.blank?
         raise IndexItemNotFound, "No radiology exam found for MRN #{mrn} accession #{accession_no} in QPID" 
       end
@@ -46,7 +46,7 @@ module ScenarioExtractor
     def medical_record_items
       return @items if @items
       update_qpid_if_needed
-      items = ScenarioExtractor.qpid.search(mrn, *search_terms)
+      items = AssayerMiner.qpid.search(mrn, *search_terms)
       items.reject! { |i| i.mid == index_item.mid || (i.type == "OPN" && i.mid =~ /PERI$/) }
       items.each { |i| add_report_methods_to_item(i) }
       @items = items
@@ -68,9 +68,9 @@ module ScenarioExtractor
     end
 
     def update_qpid_if_needed
-      updated = ScenarioExtractor.qpid.updatestatus(mrn)
+      updated = AssayerMiner.qpid.updatestatus(mrn)
       if ! updated || updated < end_date
-        ScenarioExtractor.qpid.reload(mrn)
+        AssayerMiner.qpid.reload(mrn)
       end
     end
 
@@ -78,10 +78,10 @@ module ScenarioExtractor
       scenario = self
       metaclass = class << item; self; end
       metaclass.send :define_method, :report do
-        @report ||= ScenarioExtractor.qpid.report(scenario.mrn, item)
+        @report ||= AssayerMiner.qpid.report(scenario.mrn, item)
       end
       metaclass.send :define_method, :anonymized_report do
-        @anonymized_report ||= ScenarioExtractor::Anonymizer.anonymize(scenario.name, report)
+        @anonymized_report ||= AssayerMiner::Anonymizer.anonymize(scenario.name, report)
       end
       metaclass.send :define_method, :days_from_index do
         @days_from_index ||= (date - scenario.exam_date).to_i

@@ -1,17 +1,17 @@
 # -*- encoding: utf-8 -*-
 $:.push File.expand_path("../lib", __FILE__)
-require "scenario_extractor/version"
+require "assayer_miner/version"
 
 Gem::Specification.new do |s|
-  s.name        = "scenario_extractor"
-  s.version     = ScenarioExtractor::VERSION
+  s.name        = "assayer_miner"
+  s.version     = AssayerMiner::VERSION
   s.platform    = Gem::Platform::RUBY
   s.authors     = ["Tarik Alkasab"]
   s.email       = ["talkasab@partners.org"]
-  s.homepage    = "https://github.com/talkasab/scenario_extractor"
+  s.homepage    = "https://github.com/talkasab/assayer_miner"
   s.summary     = %q{Extracts medical record information and packages as an XML file.}
   s.description = 
-    %q{Given a patient and medical record item identifier, the scenario extractor tool
+    %q{Given a patient and medical record item identifier, the miner tool
       will find associated preceding and following medical record items, anonymize them,
       and package them for use in the assayer tool.}
 

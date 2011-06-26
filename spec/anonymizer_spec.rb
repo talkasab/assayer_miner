@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-module ScenarioExtractor
+module AssayerMiner
   describe "anonymization" do
     it "kills all mentions of the patient's name"
     it "kills all mentions of the MRN"
