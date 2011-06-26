@@ -1,5 +1,6 @@
 module AssayerMiner
   module Anonymizer
+    # Dates/Times
     NUM_DAY = '[0123]?\d'
     NUM_MONTH = '[01]?\d'
     SHORT_MONTH = %w{Jan Feb Mar Apr May Jun Jul Aug Sep Oct Nov Dec}.join('|')
@@ -16,9 +17,11 @@ module AssayerMiner
     NUM_MONTH_DAY_YEAR_RE = /#{NUM_MONTH}#{SEPARATOR}#{NUM_DAY}#{MAYBE_YEAR}/
     DAY_NUM_MONTH_YEAR_RE = /#{NUM_DAY}#{SEPARATOR}#{NUM_MONTH}#{MAYBE_YEAR}/
 
+    # Numbers
     LONG_NUMBER_RE = /[-\#\d]{4,}/
-    A_ROUND_THOUSAND_RE = /^\d000$/
+    A_ROUND_THOUSAND_RE = /^\d+\,?000$/
 
+    # Doctor/Provider Names
     DOCTOR_FIELDS = ['Ordering Provider', 'Final Diagnosis by', 'Initial Evaluation by', 'SURGEON', 'Cytotechnologist',
           'ASSISTANT SURGEON', 'ASSISTANT' 'Addendum \#\d by', 'Reviewed by', 'Providers', 'Technologist'].join('|')
     DOCTOR_FIELDS_RE = /^(\s*)(#{DOCTOR_FIELDS})(.*)$/i
@@ -27,12 +30,21 @@ module AssayerMiner
     DOCTOR_NAMES_MD_RE = /(?:#{NAME_PART}#{SEPARATOR})*#{NAME_PART}#{SEPARATOR}(?=MD|M\.D\.)/
     DR_DOCTOR_NAMES_RE = /\b(?<=Dr)\.?\s+(?:#{NAME_PART}#{SEPARATOR})*#{LAST_NAME}\b/
 
+    # Entities
+    ENTITIES = { 'lt' => '<', 'gt' => '>', 'quot' => '"', 'amp' => '&' }
+    ENTITIES_RE = /\&(#{ENTITIES.keys.join('|')})\;/
+
     class << self
       def anonymize(name, text)
+        text = fix_entities(text)
         text = redact_name(name, text)
         text = redact_doctor_names(text)
         text = redact_dates(text)
         redact_numbers(text)
+      end
+
+      def fix_entities(text)
+        text.gsub(ENTITIES_RE) { |n| ENTITIES[n] }
       end
 
       def redact_name(name, text)
@@ -56,7 +68,7 @@ module AssayerMiner
       def redact_numbers(text)
         text.gsub(LONG_NUMBER_RE) do |n|
           case n
-          when A_ROUND_THOUSAND_RE then n  # Leave round thousands along
+          when A_ROUND_THOUSAND_RE then n  # Leave round thousands alone
           else n.gsub(/[[:alnum:]]/, '#')
           end
         end
