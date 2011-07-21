@@ -44,7 +44,7 @@ module AssayerMiner
       end
 
       def fix_entities(text)
-        text.gsub(ENTITIES_RE) { |n| ENTITIES[n] }
+        text.gsub(ENTITIES_RE) { |n| ENTITIES[$1] }
       end
 
       def redact_name(name, text)
